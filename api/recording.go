@@ -159,6 +159,7 @@ func createTokens(c *fiber.Ctx) error {
 		"rtc_token": rtcToken,
 		"rtm_token": rtmToken,
 	})
+}
 	func listRecordings(c *fiber.Ctx) error {
 	recordings, err := utils.GetRecordingsList(c.Params("channel") + "/")
 	if err != nil {
@@ -201,8 +202,7 @@ func getProtectedRecordingUrl(c *fiber.Ctx) error {
 	return c.JSON(fiber.Map{
 		"code":          http.StatusOK,
 		"recording_url": recordingUrl,
-	})
-}
+})
 
 // MountRoutes mounts all routes declared here
 func MountRoutes(app *fiber.App) {
