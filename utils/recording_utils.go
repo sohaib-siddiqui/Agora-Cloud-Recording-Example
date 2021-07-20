@@ -2,14 +2,41 @@ package utils
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"fmt"
 	"net/http"
 	"strconv"
 	"time"
 
+	v4 "github.com/aws/aws-sdk-go-v2/aws/signer/v4"
+	"github.com/aws/aws-sdk-go-v2/aws"
+	"github.com/aws/aws-sdk-go-v2/config"
+	"github.com/aws/aws-sdk-go-v2/service/s3"
 	"github.com/spf13/viper"
 )
+
+var Regions = map[int]string{
+	0:  "us-east-1",
+	1:  "us-east-2",
+	2:  "us-west-1",
+	3:  "us-west-2",
+	4:  "eu-west-1",
+	5:  "eu-west-2",
+	6:  "eu-west-3",
+	7:  "eu-central-1",
+	8:  "ap-southeast-1",
+	9:  "ap-southeast-2",
+	10: "ap-northeast-1",
+	11: "ap-northeast-2",
+	12: "sa-east-1",
+	13: "ca-central-1",
+	14: "ap-south-1",
+	15: "cn-north-1",
+	16: "cn-northwest-1",
+	17: "us-gov-west-1",
+}
+
 
 // Recorder manages cloud recording
 type Recorder struct {
@@ -100,10 +127,10 @@ func (rec *Recorder) Start() (string, error) {
 					"streamTypes": 2,
 					"channelType": 1,
 					"transcodingConfig": {
-						"height": 720, 
+						"height": 720,
 						"width": 1280,
-						"bitrate": 2260, 
-						"fps": 15, 
+						"bitrate": 2260,
+						"fps": 15,
 						"mixedVideoLayout": 1,
 						"backgroundColor": "#000000"
 					}
@@ -225,8 +252,8 @@ func GetRecordingsURLs(channel string) ([]string, error) {
 
 	for _, object := range objects.Contents {
 		objectValue := aws.ToString(object.Key)
-		if objectValue[len(objectValue)-4:] == "m3u8" {
-			recordings = append(recordings, "https://"+bucket+".s3."+viper.GetString("RECORDING_REGION")+".amazonaws.com/"+objectValue)
+		if objectValue[len(objectValue)-4:] == "mp4" {
+			recordings = append(recordings,"https://"+bucket+".s3."+viper.GetString("RECORDING_REGION")+".amazonaws.com/"+objectValue)
 		}
 	}
 
@@ -266,8 +293,8 @@ func GetRecordingsList(channel string) ([]string, error) {
 
 	for _, object := range objects.Contents {
 		objectValue := aws.ToString(object.Key)
-		if objectValue[len(objectValue)-4:] == "m3u8" {
-			recordings = append(recordings, objectValue)
+		if objectValue[len(objectValue)-4:] == "mp4" {
+			recordings = append(recordings,objectValue)
 		}
 	}
 
@@ -279,14 +306,14 @@ type S3PresignGetObjectAPI interface {
 		ctx context.Context,
 		params *s3.GetObjectInput,
 		optFns ...func(*s3.PresignOptions),
-	) (*v4.PresignedHTTPRequest, error)
-}
+	)(*v4.PresignedHTTPRequest, error)
 
+}
 func GetPresignedURL(c context.Context, api S3PresignGetObjectAPI, input *s3.GetObjectInput) (*v4.PresignedHTTPRequest, error) {
 	return api.PresignGetObject(c, input)
 }
 
-func GetRecordings(object string) (string, error) {
+func GetRecordings(object string) (string,error){
 	bucket := viper.GetString("BUCKET_NAME")
 
 	cfg, err := config.LoadDefaultConfig(context.TODO())
@@ -312,12 +339,11 @@ func GetRecordings(object string) (string, error) {
 		Key:    aws.String(object),
 	})
 	if err != nil {
-		return "", err
+		return "",err
 	}
 
-	return resp.URL, nil
+	return resp.URL,nil
 }
-
 
 func CallStatus(rid string, sid string) (StatusStruct, error) {
 	url := "https://api.agora.io/v1/apps/" + viper.GetString("APP_ID") + "/cloud_recording/resourceid/" + rid + "/sid/" + sid + "/mode/mix/query"

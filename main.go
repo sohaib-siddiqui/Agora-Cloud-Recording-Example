@@ -32,4 +32,6 @@ func main() {
 	api.MountRoutes(app)
 
 	app.Listen(":" + viper.GetString("PORT"))
+
+
 }
