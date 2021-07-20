@@ -159,6 +159,49 @@ func createTokens(c *fiber.Ctx) error {
 		"rtc_token": rtcToken,
 		"rtm_token": rtmToken,
 	})
+	func listRecordings(c *fiber.Ctx) error {
+	recordings, err := utils.GetRecordingsList(c.Params("channel") + "/")
+	if err != nil {
+		return c.Status(http.StatusUnprocessableEntity).JSON(fiber.Map{
+			"msg": http.StatusInternalServerError,
+			"err": err.Error(),
+		})
+	}
+
+	return c.JSON(fiber.Map{
+		"code":           http.StatusOK,
+		"recording_urls": recordings,
+	})
+}
+
+func listRecordingsURLs(c *fiber.Ctx) error {
+	recordings, err := utils.GetRecordingsURLs(c.Params("channel") + "/")
+	if err != nil {
+		return c.Status(http.StatusUnprocessableEntity).JSON(fiber.Map{
+			"msg": http.StatusInternalServerError,
+			"err": err.Error(),
+		})
+	}
+
+	return c.JSON(fiber.Map{
+		"code":       http.StatusOK,
+		"recordings": recordings,
+	})
+}
+
+func getProtectedRecordingUrl(c *fiber.Ctx) error {
+	recordingUrl, err := utils.GetRecordings(c.Params("+"))
+	if err != nil {
+		return c.Status(http.StatusUnprocessableEntity).JSON(fiber.Map{
+			"msg": http.StatusInternalServerError,
+			"err": err.Error(),
+		})
+	}
+
+	return c.JSON(fiber.Map{
+		"code":          http.StatusOK,
+		"recording_url": recordingUrl,
+	})
 }
 
 // MountRoutes mounts all routes declared here
@@ -169,4 +212,7 @@ func MountRoutes(app *fiber.App) {
 	app.Get("/api/get/rtm/:uid", createRTMToken)
 	app.Get("/api/tokens/:channel", createTokens)
 	app.Post("/api/status/call", callStatus)
+	app.Get("/api/get/list/:channel", listRecordings)
+	app.Get("/api/get/file/+", listRecordings)
+	app.Get("/api/get/recordingUrls/:channel", listRecordingsURLs)
 }
