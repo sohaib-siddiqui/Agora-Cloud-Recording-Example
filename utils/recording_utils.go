@@ -252,7 +252,7 @@ func GetRecordingsURLs(channel string) ([]string, error) {
 
 	for _, object := range objects.Contents {
 		objectValue := aws.ToString(object.Key)
-		if objectValue[len(objectValue)-4:] == "m3u8" {
+		if objectValue[len(objectValue)-4:] == "_0"+"mp4" {
 			recordings = append(recordings,"https://"+bucket+".s3."+viper.GetString("RECORDING_REGION")+".amazonaws.com/"+objectValue)
 		}
 	}
