@@ -203,7 +203,7 @@ func getProtectedRecordingUrl(c *fiber.Ctx) error {
 		"code":          http.StatusOK,
 		"recording_url": recordingUrl,
 })
-
+}
 // MountRoutes mounts all routes declared here
 func MountRoutes(app *fiber.App) {
 	app.Post("/api/start/call", startCall)
