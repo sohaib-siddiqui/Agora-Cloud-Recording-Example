@@ -293,7 +293,7 @@ func GetRecordingsList(channel string) ([]string, error) {
 
 	for _, object := range objects.Contents {
 		objectValue := aws.ToString(object.Key)
-		if objectValue[len(objectValue)-4:] == "m3u8" {
+		if objectValue[len(objectValue)-3:] == "mp4" {
 			recordings = append(recordings,objectValue)
 		}
 	}
