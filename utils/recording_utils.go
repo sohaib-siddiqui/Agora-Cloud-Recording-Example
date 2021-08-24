@@ -127,9 +127,9 @@ func (rec *Recorder) Start() (string, error) {
 					"streamTypes": 2,
 					"channelType": 1,
 					"transcodingConfig": {
-						"height": 1080,
-						"width": 1920,
-						"bitrate": 2080,
+						"height": 160,
+						"width": 120,
+						"bitrate": 65,
 						"fps": 15,
 						"mixedVideoLayout": 1,
 						"backgroundColor": "#000000"
